@@ -1,0 +1,83 @@
+model:
+  arch: translator_arxiv_chatglm
+  model_type: pretrain_arxiv
+  load_finetuned: False
+  pretrained: "./Laser-main/Translator/arts/3/checkpoint_best.pth"
+  llm_dir: "./Laser-main/Translator/models/chatglm2-6b"
+  bert_dir: "./Laser-main/Translator/models/bert-base-uncased"
+  use_bert_pretrained: False
+
+  # behavior encoder
+  vision_hidden_state: 256
+  behavior_length: 768
+  freeze_behavior: True
+  behavior_precision: "fp16"
+
+  # Text
+  max_txt_len: 1024
+
+  # Q-Former
+  alpha: 0.01  # for moe loss
+  top_k: 1 
+  num_expert: 8 
+  num_query_token: 32
+  temp: 0.05 
+
+  # 训练阶段
+  finetune_stage: "2-3"
+
+  # 其他的消融实验
+  use_prefix: False  
+  use_cf: True
+  short_prompt: False
+  I_device: "cuda:2"
+
+datasets:
+  arxiv_caption: # name of the dataset builder
+    type: translator_train_stage2
+    datasets_dir: "./Laser-main/data/Arts/train-dummy.csv"
+    arxiv_processor:
+      train:
+        name: "translator_arxiv_train"
+        max_length: 1024
+        vocab_size: 100000
+    text_processor:
+      train:
+        name: "translator_caption"
+    use_cf: True  
+    finetune_stage: "2"
+
+run:
+  task: arxiv_text_pretrain
+  
+  lr_sched: "linear_warmup_cosine_lr"
+  init_lr: 1e-4
+  min_lr: 1e-5
+  warmup_lr: 1e-6
+
+  weight_decay: 0.05
+  max_epoch: 30
+  batch_size_train: 2
+  batch_size_eval: 32
+  warmup_steps: 500
+  accum_grad_iters: 16
+  log_freq: 16000
+
+  seed: 42
+  output_dir: "./Laser-main/Translator/two-prompt"
+  amp: True
+  resume_ckpt_path: null
+
+  evaluate: True
+  train_splits: ["train"]
+
+  device: "cuda:7"
+  I_device: "cuda:2"
+  dist_url: "env://"
+  distributed: True
+
+  item_emb_path: "./Laser-main/data/Arts/item.csv"
+  num_workers: 16
+  valid_data_dir: "./Laser-main/data/Arts/val.csv"
+  test_data_dir: "./Laser-main/data/Arts/test.csv"
+  early_stop: 3

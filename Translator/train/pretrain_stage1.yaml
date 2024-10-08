@@ -1,0 +1,74 @@
+model:
+  arch: translator_arxiv
+  model_type: pretrain_arxiv
+  load_finetuned: False
+  pretrained: 
+  llm_dir: "./Laser-main/Translator/models/chatglm2-6b"
+  bert_dir: "./Laser-main/Translator/models/bert-base-uncased"
+  use_bert_pretrained: True
+
+  # behavior encoder
+  vision_hidden_state: 256
+  behavior_length: 768
+  freeze_behavior: True
+  behavior_precision: "fp16"
+
+  contrastive_loss: True
+  matching_loss: False
+  generative_loss: False
+
+  # Text
+  max_txt_len: 512
+
+  # Q-Former
+  alpha: 0.01  # for moe loss
+  top_k: 3  
+  num_expert: 8
+  num_query_token: 32
+  cross_attention_freq: 2
+
+  finetune_stage: "1"
+
+
+datasets:
+  arxiv_caption: # name of the dataset builder
+    datasets_dir: "./Laser-main/data/Scientific/train.csv"
+    arxiv_processor:
+      train:
+        name: "translator_arxiv_train"
+        max_length: 512
+        vocab_size: 100000
+    text_processor:
+      train:
+        name: "translator_caption"
+    finetune_stage: "1"
+
+
+run:
+  task: arxiv_text_pretrain
+  # optimizer
+  lr_sched: "linear_warmup_cosine_lr"
+  init_lr: 1e-4
+  min_lr: 1e-5
+  warmup_lr: 1e-6
+
+  weight_decay: 0.05
+  max_epoch: 5
+  batch_size_train: 4
+  batch_size_eval: 2
+  warmup_steps: 500
+  accum_grad_iters: 64
+  log_freq: 2000
+
+  seed: 42
+  output_dir: "./Laser-main/Translator/scientific/contrastive-moe-23-3"
+
+  amp: True
+  resume_ckpt_path: null
+
+  evaluate: False 
+  train_splits: ["train"]
+
+  device: "cuda:3"
+  dist_url: "env://"
+  distributed: True
