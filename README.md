@@ -40,11 +40,11 @@ training stage 1
 
 ```
 cd Translator/train
-python train.py --cfg-path ./pretrain_arxiv_stage1.yaml
+python train.py --cfg-path ./pretrain_stage1.yaml
 ```
 
 training stage 2
 
 ```
-python train.py --cfg-path ./pretrain_arxiv_stage2.yaml
+python train.py --cfg-path ./pretrain_stage2.yaml
 ```
