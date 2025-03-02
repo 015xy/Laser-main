@@ -1,4 +1,4 @@
-# Laser: Parameter-Efficient LLM Bi-Tuning for Sequential Recommendation with Mixture of Collaborative Experts
+# Bi-Tuning with Collaborative Information for Controllable LLM-based Sequential Recommendation
 
 ### Installation
 
